@@ -142,6 +142,9 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
     }
 
     private void verifyPhoneNumber(final String phoneNumber, final long timeout, final CallbackContext callbackContext) {
+        
+        this.signinCallback = callbackContext;
+        
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
@@ -150,10 +153,22 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
                         @Override
                         public void onVerificationCompleted(PhoneAuthCredential credential) {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
+
                             if (user == null) {
-                                firebaseAuth.signInWithCredential(credential);
+                                firebaseAuth.signInWithCredential(credential)
+                                    .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
                             } else {
-                                user.updatePhoneNumber(credential);
+                                user.updatePhoneNumber(credential)
+                                    .addOnCompleteListener(cordova.getActivity(), new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                callbackContext.success(getProfileData(firebaseAuth.getCurrentUser()));
+                                            } else {
+                                                callbackContext.error(task.getException().getMessage());
+                                            }
+                                        }
+                                    });
                             }
                         }
 
