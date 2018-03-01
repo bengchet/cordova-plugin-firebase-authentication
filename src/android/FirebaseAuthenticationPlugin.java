@@ -191,7 +191,7 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
                                 user.updatePhoneNumber(credential)
                                     .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
                             }
-                            callbackContext.success();
+                            callbackContext.success("");
                         }
 
                         @Override
