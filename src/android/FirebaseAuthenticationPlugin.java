@@ -110,18 +110,23 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
             }
         });
     }
+    
+    private void waitForSMSVerificationResult(final CallbackContext callbackContext) {
+        this.signinCallback = callbackContext;
+    }
 
     private void signInWithVerificationId(final String verificationId, final String code, final CallbackContext callbackContext) {
+        
         final PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
 
-        this.signinCallback = callbackContext;
+        //this.signinCallback = callbackContext;
 
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                if (user == null) {
+                /*if (user == null) {
                     firebaseAuth.signInWithCredential(credential)
                         .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
                 } else {
@@ -136,14 +141,22 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
                                 }
                             }
                         });
+                }*/
+                if (user == null) {
+                    firebaseAuth.signInWithCredential(credential)
+                        .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
+                } else {
+                    user.updatePhoneNumber(credential)
+                        .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
                 }
+                callbackContext.success();
             }
         });
     }
 
     private void verifyPhoneNumber(final String phoneNumber, final long timeout, final CallbackContext callbackContext) {
         
-        this.signinCallback = callbackContext;
+        //this.signinCallback = callbackContext;
         
         cordova.getThreadPool().execute(new Runnable() {
             @Override
@@ -152,9 +165,10 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
                     new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                         @Override
                         public void onVerificationCompleted(PhoneAuthCredential credential) {
+                            Log.d(TAG, "onVerificationCompleted:" + credential);
                             FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                            if (user == null) {
+                            /*if (user == null) {
                                 firebaseAuth.signInWithCredential(credential)
                                     .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
                             } else {
@@ -169,7 +183,15 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
                                             }
                                         }
                                     });
+                            }*/
+                            if (user == null) {
+                                firebaseAuth.signInWithCredential(credential)
+                                    .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
+                            } else {
+                                user.updatePhoneNumber(credential)
+                                    .addOnCompleteListener(cordova.getActivity(), FirebaseAuthenticationPlugin.this);
                             }
+                            callbackContext.success();
                         }
 
                         @Override
