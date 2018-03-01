@@ -51,5 +51,10 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             exec(resolve, reject, PLUGIN_NAME, "signOut", []);
         });
+    },
+    waitForSMSVerificationResult: function() {
+        return new Promise(function(resolve, reject) {
+            exec(resolve, reject, PLUGIN_NAME, "waitForSMSVerificationResult", []);
+        });
     }
 };
