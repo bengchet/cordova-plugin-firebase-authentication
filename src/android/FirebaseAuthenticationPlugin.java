@@ -55,6 +55,9 @@ public class FirebaseAuthenticationPlugin extends CordovaPlugin implements OnCom
         } else if (action.equals("signOut")) {
             signOut(callbackContext);
             return true;
+        } else if (action.equals("waitForSMSVerificationResult")) {
+            waitForSMSVerificationResult(callbackContext);
+            return true;
         }
 
         return false;
